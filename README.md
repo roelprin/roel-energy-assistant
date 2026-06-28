@@ -36,3 +36,18 @@ This first version expects these Essent Dynamic Prices entities:
 ## Installation
 
 Install as a HACS custom integration or copy `custom_components/roel_energy_assistant` to Home Assistant.
+
+
+## v0.2.0
+
+Adds a richer daily planner and a longer briefing suitable for dashboards and notifications.
+
+The `Briefing` sensor now has a full text state and exposes:
+
+- status
+- score
+- stars
+- recommended actions
+- avoid actions
+- daily plan
+- reasons

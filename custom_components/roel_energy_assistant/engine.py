@@ -65,6 +65,105 @@ def _cheap_block(summary: dict | None):
     return summary.get("cheapest_block_below_average")
 
 
+def _rating(score: int | None) -> str:
+    if score is None:
+        return "unknown"
+    if score >= 90:
+        return "excellent"
+    if score >= 75:
+        return "very_good"
+    if score >= 60:
+        return "good"
+    if score >= 45:
+        return "average"
+    if score >= 25:
+        return "expensive"
+    return "very_expensive"
+
+
+def _stars(score: int | None) -> str:
+    if score is None:
+        return "☆☆☆☆☆"
+    if score >= 90:
+        return "★★★★★"
+    if score >= 75:
+        return "★★★★☆"
+    if score >= 60:
+        return "★★★☆☆"
+    if score >= 40:
+        return "★★☆☆☆"
+    return "★☆☆☆☆"
+
+
+def _build_daily_plan(
+    score: int,
+    lowest: float | None,
+    cheapest_hour: str | None,
+    expensive_hour: str | None,
+    cheap_block: dict | None,
+    potential_saving: float | None,
+):
+    plan = []
+
+    if cheap_block:
+        start = cheap_block.get("start")
+        end = cheap_block.get("end")
+        avg = cheap_block.get("average")
+
+        plan.append({
+            "time": f"{start}–{end}",
+            "priority": "high",
+            "task": "Wasmachine / vaatwasser / droger",
+            "reason": f"Goedkoop blok met gemiddeld €{avg}/kWh",
+            "recommended": True,
+        })
+
+        plan.append({
+            "time": start,
+            "priority": "medium",
+            "task": "Airco voorkoelen",
+            "reason": "Start aan het begin van het goedkope blok",
+            "recommended": True,
+        })
+
+    if cheapest_hour and lowest is not None:
+        plan.append({
+            "time": cheapest_hour,
+            "priority": "high",
+            "task": "Zware verbruikers plannen",
+            "reason": f"Goedkoopste uur van vandaag: €{lowest:.3f}/kWh",
+            "recommended": True,
+        })
+
+    if score >= 85:
+        plan.insert(0, {
+            "time": "Nu",
+            "priority": "high",
+            "task": "Energie-intensieve apparaten gebruiken",
+            "reason": "REA-score is zeer hoog",
+            "recommended": True,
+        })
+    elif score <= 35:
+        plan.insert(0, {
+            "time": "Nu",
+            "priority": "high",
+            "task": "Groot verbruik uitstellen",
+            "reason": "REA-score is laag",
+            "recommended": False,
+        })
+
+    if expensive_hour:
+        plan.append({
+            "time": expensive_hour,
+            "priority": "avoid",
+            "task": "Groot verbruik vermijden",
+            "reason": "Duurste uur van vandaag",
+            "recommended": False,
+        })
+
+    return plan
+
+
 def analyze(hass: HomeAssistant) -> dict:
     current = _float_state(hass, ESSENT_CURRENT_PRICE)
     next_price = _float_state(hass, ESSENT_NEXT_PRICE)
@@ -89,7 +188,9 @@ def analyze(hass: HomeAssistant) -> dict:
             "status": "Geen prijsdata beschikbaar",
             "score": None,
             "rating": "unknown",
+            "stars": "☆☆☆☆☆",
             "advice": "Geen prijsdata beschikbaar",
+            "briefing": "Geen Essent-prijsdata beschikbaar.",
             "daily_plan": [],
             "reasons": ["Essent prijsdata ontbreekt"],
             "recommended_actions": [],
@@ -134,21 +235,17 @@ def analyze(hass: HomeAssistant) -> dict:
         reasons.append("Duur stroomuur is actief")
 
     score = max(0, min(100, score))
+    rating = _rating(score)
 
     if score >= 85:
-        rating = "excellent"
         status = "Nu doen"
     elif score >= 70:
-        rating = "good"
         status = "Goed moment"
     elif score >= 45:
-        rating = "average"
         status = "Neutraal"
     elif score >= 25:
-        rating = "expensive"
         status = "Liever wachten"
     else:
-        rating = "very_expensive"
         status = "Vermijden"
 
     wait_minutes = _minutes_until(cheapest_hour)
@@ -166,28 +263,6 @@ def analyze(hass: HomeAssistant) -> dict:
     else:
         avoid = ["droger", "boiler", "airco extra koelen", "groot verbruik"]
 
-    daily_plan = []
-    if cheapest_hour and lowest is not None:
-        daily_plan.append({
-            "time": cheapest_hour,
-            "task": "Energie-intensieve taken",
-            "reason": f"Goedkoopste uur van vandaag: €{lowest:.3f}/kWh",
-        })
-
-    if block:
-        daily_plan.append({
-            "time": f"{block.get('start')}–{block.get('end')}",
-            "task": "Wasmachine / vaatwasser / droger",
-            "reason": f"Goedkoop blok met gemiddeld €{block.get('average')}/kWh",
-        })
-
-    if expensive_hour:
-        daily_plan.append({
-            "time": expensive_hour,
-            "task": "Groot verbruik vermijden",
-            "reason": "Duurste uur van vandaag",
-        })
-
     if negative_price:
         advice = "Gebruik nu veel stroom: de stroomprijs is negatief."
     elif score >= 85:
@@ -203,11 +278,38 @@ def analyze(hass: HomeAssistant) -> dict:
     else:
         advice = "Geen sterk advies; normaal verbruik is prima."
 
+    daily_plan = _build_daily_plan(score, lowest, cheapest_hour, expensive_hour, block, potential_saving)
+
+    if score >= 70:
+        briefing_intro = "Vandaag is een goed moment om energie slim te gebruiken."
+    elif score <= 35:
+        briefing_intro = "De stroom is nu relatief duur. Stel groot verbruik liever uit."
+    else:
+        briefing_intro = "Vandaag is er geen extreem prijsvoordeel op dit moment."
+
+    briefing = (
+        f"{briefing_intro} "
+        f"Huidige prijs: €{current:.3f}/kWh. "
+        f"Gemiddelde vandaag: €{average:.3f}/kWh. " if average is not None else
+        f"{briefing_intro} Huidige prijs: €{current:.3f}/kWh. "
+    )
+
+    if cheapest_hour and lowest is not None:
+        briefing += f"Goedkoopste uur: {cheapest_hour} (€{lowest:.3f}/kWh). "
+
+    if expensive_hour:
+        briefing += f"Vermijd groot verbruik rond {expensive_hour}. "
+
+    if recommended:
+        briefing += "Aanbevolen: " + ", ".join(recommended) + "."
+
     return {
         "status": status,
         "score": score,
         "rating": rating,
+        "stars": _stars(score),
         "advice": advice,
+        "briefing": briefing,
         "current_price": current,
         "next_price": next_price,
         "average_price": average,

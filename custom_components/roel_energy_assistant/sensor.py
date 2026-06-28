@@ -106,20 +106,19 @@ class ReaDailyPlanSensor(RoelAssistantBaseSensor):
 class ReaBriefingSensor(RoelAssistantBaseSensor):
     @property
     def native_value(self):
-        return analyze(self.hass).get("status")
+        return analyze(self.hass).get("briefing")
 
     @property
     def extra_state_attributes(self):
         data = analyze(self.hass)
         return {
-            "briefing": (
-                f"{data.get('status')}: {data.get('advice')} "
-                f"Goedkoopste uur: {data.get('cheapest_hour')}. "
-                f"Duurste uur: {data.get('most_expensive_hour')}."
-            ),
+            "status": data.get("status"),
+            "score": data.get("score"),
+            "stars": data.get("stars"),
             "recommended_actions": data.get("recommended_actions"),
             "avoid_actions": data.get("avoid_actions"),
             "daily_plan": data.get("daily_plan"),
+            "reasons": data.get("reasons"),
         }
 
 
