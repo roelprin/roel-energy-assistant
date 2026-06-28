@@ -1,0 +1,14 @@
+{
+  "title": "Roel Energy Assistant",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Roel Energy Assistant",
+        "description": "Persoonlijke energie-assistent voor Roel op basis van Essent Dynamic Prices."
+      }
+    },
+    "abort": {
+      "already_configured": "Roel Energy Assistant is al geconfigureerd."
+    }
+  }
+}
