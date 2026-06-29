@@ -14,6 +14,7 @@ TRACKED_ENTITIES = [
     "binary_sensor.essent_dynamic_prices_goedkoop_stroomuur",
     "binary_sensor.essent_dynamic_prices_duur_stroomuur",
     "sensor.p1_meter_vermogen",
+    "number.goodwe_grid_export_limit",
 ]
 
 
@@ -70,6 +71,12 @@ class ReaBinarySensor(RoelEnergyAssistantEntity, BinarySensorEntity):
         if self._key == "data_ok":
             return data.get("data_quality") == "ok"
 
+        if self._key == "goodwe_limit_recommended":
+            return bool(data.get("goodwe_limit_recommended"))
+
+        if self._key == "anti_feed_in_active":
+            return bool(data.get("anti_feed_in_active"))
+
         return False
 
 
@@ -83,4 +90,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaBinarySensor(hass, "feed_in_active", "Teruglevering actief", "mdi:transmission-tower-export"),
         ReaBinarySensor(hass, "large_solar_surplus", "Veel zonnestroom over", "mdi:solar-power-variant"),
         ReaBinarySensor(hass, "data_ok", "Data OK", "mdi:database-check"),
+        ReaBinarySensor(hass, "goodwe_limit_recommended", "GoodWe begrenzen aanbevolen", "mdi:solar-power-variant-outline"),
+        ReaBinarySensor(hass, "anti_feed_in_active", "Anti Feed-In actief", "mdi:alert-octagon"),
     ])

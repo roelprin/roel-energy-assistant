@@ -129,3 +129,26 @@ New entity:
 - Decision Engine
 
 This is the new central place for status, advice, score, reasons, daily plan, market status, grid status and feed-in information.
+
+
+## v0.4.1 - Anti Feed-In / GoodWe recommendation
+
+REA now understands your GoodWe export limit entity:
+
+```yaml
+number.goodwe_grid_export_limit
+```
+
+Range used:
+
+- `0 W` = no export
+- `10000 W` = normal/max export
+
+New entities:
+
+- GoodWe advies
+- Aanbevolen exportlimiet
+- GoodWe begrenzen aanbevolen
+- Anti Feed-In actief
+
+This version is advice-only. It does not automatically change the GoodWe export limit yet.

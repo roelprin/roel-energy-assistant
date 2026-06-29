@@ -42,6 +42,12 @@
       },
       "decision_engine": {
         "name": "Decision Engine"
+      },
+      "goodwe_advice": {
+        "name": "GoodWe advies"
+      },
+      "recommended_export_limit": {
+        "name": "Aanbevolen exportlimiet"
       }
     },
     "binary_sensor": {
@@ -59,6 +65,12 @@
       },
       "data_ok": {
         "name": "Data OK"
+      },
+      "goodwe_limit_recommended": {
+        "name": "GoodWe begrenzen aanbevolen"
+      },
+      "anti_feed_in_active": {
+        "name": "Anti Feed-In actief"
       }
     }
   }

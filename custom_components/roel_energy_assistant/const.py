@@ -17,3 +17,7 @@ ESSENT_CHEAP_HOUR = "binary_sensor.essent_dynamic_prices_goedkoop_stroomuur"
 ESSENT_EXPENSIVE_HOUR = "binary_sensor.essent_dynamic_prices_duur_stroomuur"
 
 P1_POWER = "sensor.p1_meter_vermogen"
+
+GOODWE_EXPORT_LIMIT = "number.goodwe_grid_export_limit"
+GOODWE_EXPORT_LIMIT_NORMAL = 10000
+GOODWE_EXPORT_LIMIT_MIN = 0

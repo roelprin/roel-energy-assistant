@@ -22,6 +22,7 @@ TRACKED_ENTITIES = [
     "binary_sensor.essent_dynamic_prices_goedkoop_stroomuur",
     "binary_sensor.essent_dynamic_prices_duur_stroomuur",
     "sensor.p1_meter_vermogen",
+    "number.goodwe_grid_export_limit",
 ]
 
 
@@ -287,6 +288,42 @@ class ReaDecisionEngineSensor(RoelAssistantBaseSensor):
         }
 
 
+
+class ReaGoodweAdviceSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("goodwe_advice")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "goodwe_export_limit_entity": data.get("goodwe_export_limit_entity"),
+            "goodwe_export_limit": data.get("goodwe_export_limit"),
+            "recommended_export_limit": data.get("recommended_export_limit"),
+            "goodwe_limit_recommended": data.get("goodwe_limit_recommended"),
+            "anti_feed_in_active": data.get("anti_feed_in_active"),
+            "feed_in_power": data.get("feed_in_power"),
+            "current_price": data.get("current_price"),
+        }
+
+
+class ReaRecommendedExportLimitSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("recommended_export_limit")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "goodwe_export_limit": data.get("goodwe_export_limit"),
+            "goodwe_limit_recommended": data.get("goodwe_limit_recommended"),
+            "goodwe_advice": data.get("goodwe_advice"),
+            "normal_export_limit": data.get("goodwe_export_limit_normal"),
+        }
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         ReaAdvisorSensor(hass, "advisor", "Advisor", "mdi:brain"),
@@ -304,4 +341,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaSelfConsumptionAdviceSensor(hass, "self_consumption_advice", "Eigen verbruik advies", "mdi:home-lightning-bolt"),
         ReaDataQualitySensor(hass, "data_quality", "Datakwaliteit", "mdi:database-check"),
         ReaDecisionEngineSensor(hass, "decision_engine", "Decision Engine", "mdi:brain"),
+        ReaGoodweAdviceSensor(hass, "goodwe_advice", "GoodWe advies", "mdi:solar-power-variant-outline"),
+        ReaRecommendedExportLimitSensor(hass, "recommended_export_limit", "Aanbevolen exportlimiet", "mdi:transmission-tower-export", "W"),
     ])

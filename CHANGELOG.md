@@ -1,19 +1,17 @@
 # Changelog
 
+## v0.4.1
+
+Anti Feed-In / GoodWe recommendation.
+
+- GoodWe export limit support using `number.goodwe_grid_export_limit`.
+- GoodWe advies sensor.
+- Aanbevolen exportlimiet sensor.
+- GoodWe begrenzen aanbevolen binary sensor.
+- Anti Feed-In actief binary sensor.
+
+Advice-only: REA does not automatically change the export limit yet.
+
 ## v0.4.0
 
 Decision Engine foundation.
-
-### Added
-
-- New `decision_engine.py` module.
-- New `Decision Engine` sensor.
-- One central decision object with status, advice, score, reasons, daily plan, market status and grid status.
-
-### Notes
-
-This is a safe foundation release. The current stable analyzer remains active and the Decision Engine wraps it. Future versions can move more logic into the Decision Engine without changing dashboards or automations.
-
-## v0.3.3
-
-Stabilization release.
