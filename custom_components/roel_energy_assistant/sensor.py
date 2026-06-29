@@ -122,6 +122,27 @@ class ReaBriefingSensor(RoelAssistantBaseSensor):
         }
 
 
+
+
+class ReaMarketStatusSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("market_label")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "status": data.get("market_status"),
+            "severity": data.get("market_severity"),
+            "message": data.get("market_message"),
+            "current_price": data.get("current_price"),
+            "market_price": data.get("market_price"),
+            "average_price": data.get("average_price"),
+            "advice": data.get("advice"),
+        }
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         ReaAdvisorSensor(hass, "advisor", "Advisor", "mdi:brain"),
@@ -129,4 +150,5 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaStatusSensor(hass, "status", "Status", "mdi:traffic-light"),
         ReaDailyPlanSensor(hass, "daily_plan", "Dagplanning", "mdi:calendar-clock"),
         ReaBriefingSensor(hass, "briefing", "Briefing", "mdi:message-text-clock"),
+        ReaMarketStatusSensor(hass, "market_status", "Marktstatus", "mdi:chart-bell-curve"),
     ])

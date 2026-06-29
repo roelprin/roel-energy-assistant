@@ -10,5 +10,20 @@
     "abort": {
       "already_configured": "Roel Energy Assistant is already configured."
     }
+  },
+  "entity": {
+    "sensor": {
+      "market_status": {
+        "name": "Market status"
+      }
+    },
+    "binary_sensor": {
+      "negative_market_price": {
+        "name": "Negative market price"
+      },
+      "negative_total_price": {
+        "name": "Negative total price"
+      }
+    }
   }
 }

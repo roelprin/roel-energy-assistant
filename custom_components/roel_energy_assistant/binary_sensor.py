@@ -54,6 +54,12 @@ class ReaBinarySensor(RoelEnergyAssistantEntity, BinarySensorEntity):
             block = data.get("cheap_block")
             return data.get("status") in ["Nu doen", "Goed moment"] and block is not None
 
+        if self._key == "negative_market_price":
+            return data.get("market_status") == "negative_market_price"
+
+        if self._key == "negative_total_price":
+            return data.get("market_status") == "negative_total_price"
+
         return False
 
 
@@ -62,4 +68,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaBinarySensor(hass, "good_moment", "Goed moment", "mdi:thumb-up"),
         ReaBinarySensor(hass, "avoid_large_usage", "Groot verbruik vermijden", "mdi:alert-circle"),
         ReaBinarySensor(hass, "cheap_block_active", "Goedkoop blok actief", "mdi:clock-check"),
+        ReaBinarySensor(hass, "negative_market_price", "Negatieve beursprijs", "mdi:chart-line-variant"),
+        ReaBinarySensor(hass, "negative_total_price", "Negatieve totaalprijs", "mdi:cash-minus"),
     ])

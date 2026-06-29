@@ -95,13 +95,61 @@ def _stars(score: int | None) -> str:
     return "★☆☆☆☆"
 
 
+def _market_status(current: float | None, market_price: float | None, average: float | None) -> dict:
+    if current is None:
+        return {
+            "status": "unknown",
+            "label": "Geen prijsdata",
+            "severity": "unknown",
+            "message": "Geen actuele stroomprijs beschikbaar",
+        }
+
+    if current < 0:
+        return {
+            "status": "negative_total_price",
+            "label": "Negatieve totaalprijs",
+            "severity": "critical",
+            "message": "De totale stroomprijs is negatief. Verbruiken is financieel gunstig.",
+        }
+
+    if market_price is not None and market_price < 0:
+        return {
+            "status": "negative_market_price",
+            "label": "Negatieve beursprijs",
+            "severity": "warning",
+            "message": "De kale beursprijs is negatief, maar door belasting en toeslagen betaal je nog positief.",
+        }
+
+    if average is not None and current < average:
+        return {
+            "status": "cheap",
+            "label": "Goedkoop",
+            "severity": "good",
+            "message": "De stroomprijs ligt onder het daggemiddelde.",
+        }
+
+    if average is not None and current > average:
+        return {
+            "status": "expensive",
+            "label": "Duur",
+            "severity": "expensive",
+            "message": "De stroomprijs ligt boven het daggemiddelde.",
+        }
+
+    return {
+        "status": "normal",
+        "label": "Normaal",
+        "severity": "normal",
+        "message": "Geen bijzonder prijssignaal.",
+    }
+
+
 def _build_daily_plan(
     score: int,
     lowest: float | None,
     cheapest_hour: str | None,
     expensive_hour: str | None,
     cheap_block: dict | None,
-    potential_saving: float | None,
 ):
     plan = []
 
@@ -166,6 +214,7 @@ def _build_daily_plan(
 
 def analyze(hass: HomeAssistant) -> dict:
     current = _float_state(hass, ESSENT_CURRENT_PRICE)
+    market_price = _attr(hass, ESSENT_CURRENT_PRICE, "market_price")
     next_price = _float_state(hass, ESSENT_NEXT_PRICE)
     average = _float_state(hass, ESSENT_AVERAGE_TODAY)
     lowest = _float_state(hass, ESSENT_LOWEST_TODAY)
@@ -180,6 +229,7 @@ def analyze(hass: HomeAssistant) -> dict:
     cheap_hour = _state(hass, ESSENT_CHEAP_HOUR) == "on"
     expensive_hour_active = _state(hass, ESSENT_EXPENSIVE_HOUR) == "on"
 
+    market = _market_status(current, market_price, average)
     score = 50
     reasons = []
 
@@ -192,14 +242,21 @@ def analyze(hass: HomeAssistant) -> dict:
             "advice": "Geen prijsdata beschikbaar",
             "briefing": "Geen Essent-prijsdata beschikbaar.",
             "daily_plan": [],
+            "market_status": "unknown",
+            "market_label": "Geen prijsdata",
+            "market_severity": "unknown",
+            "market_message": "Geen actuele stroomprijs beschikbaar",
             "reasons": ["Essent prijsdata ontbreekt"],
             "recommended_actions": [],
             "avoid_actions": [],
         }
 
-    if negative_price:
+    if negative_price or current < 0:
         score = 100
-        reasons.append("De stroomprijs is negatief")
+        reasons.append("De totale stroomprijs is negatief")
+    elif market_price is not None and market_price < 0:
+        score += 15
+        reasons.append("De kale beursprijs is negatief")
     elif average is not None:
         if current < average:
             score += 20
@@ -254,7 +311,11 @@ def analyze(hass: HomeAssistant) -> dict:
     recommended = []
     avoid = []
 
-    if score >= 85:
+    if current < 0:
+        recommended = ["airco", "boiler", "wasmachine", "vaatwasser", "droger"]
+    elif market_price is not None and market_price < 0:
+        recommended = ["airco voorkoelen", "wasmachine", "vaatwasser"]
+    elif score >= 85:
         recommended = ["wasmachine", "vaatwasser", "droger", "airco voorkoelen"]
     elif score >= 70:
         recommended = ["wasmachine", "vaatwasser", "airco voorkoelen"]
@@ -263,8 +324,10 @@ def analyze(hass: HomeAssistant) -> dict:
     else:
         avoid = ["droger", "boiler", "airco extra koelen", "groot verbruik"]
 
-    if negative_price:
-        advice = "Gebruik nu veel stroom: de stroomprijs is negatief."
+    if current < 0:
+        advice = "Gebruik nu veel stroom: de totale stroomprijs is negatief."
+    elif market_price is not None and market_price < 0:
+        advice = "De kale beursprijs is negatief. Gebruik bij voorkeur nu eigen stroom en voorkom onnodige teruglevering."
     elif score >= 85:
         advice = "Goed moment om energie-intensieve apparaten te gebruiken."
     elif score >= 70:
@@ -278,21 +341,26 @@ def analyze(hass: HomeAssistant) -> dict:
     else:
         advice = "Geen sterk advies; normaal verbruik is prima."
 
-    daily_plan = _build_daily_plan(score, lowest, cheapest_hour, expensive_hour, block, potential_saving)
+    daily_plan = _build_daily_plan(score, lowest, cheapest_hour, expensive_hour, block)
 
-    if score >= 70:
+    if market.get("status") == "negative_total_price":
+        briefing_intro = "Let op: de totale stroomprijs is negatief."
+    elif market.get("status") == "negative_market_price":
+        briefing_intro = "Let op: de kale beursprijs is negatief."
+    elif score >= 70:
         briefing_intro = "Vandaag is een goed moment om energie slim te gebruiken."
     elif score <= 35:
         briefing_intro = "De stroom is nu relatief duur. Stel groot verbruik liever uit."
     else:
         briefing_intro = "Vandaag is er geen extreem prijsvoordeel op dit moment."
 
-    briefing = (
-        f"{briefing_intro} "
-        f"Huidige prijs: €{current:.3f}/kWh. "
-        f"Gemiddelde vandaag: €{average:.3f}/kWh. " if average is not None else
-        f"{briefing_intro} Huidige prijs: €{current:.3f}/kWh. "
-    )
+    if average is not None:
+        briefing = f"{briefing_intro} Huidige prijs: €{current:.3f}/kWh. Gemiddelde vandaag: €{average:.3f}/kWh. "
+    else:
+        briefing = f"{briefing_intro} Huidige prijs: €{current:.3f}/kWh. "
+
+    if market_price is not None:
+        briefing += f"Kale beursprijs: €{market_price:.3f}/kWh. "
 
     if cheapest_hour and lowest is not None:
         briefing += f"Goedkoopste uur: {cheapest_hour} (€{lowest:.3f}/kWh). "
@@ -311,6 +379,11 @@ def analyze(hass: HomeAssistant) -> dict:
         "advice": advice,
         "briefing": briefing,
         "current_price": current,
+        "market_price": market_price,
+        "market_status": market.get("status"),
+        "market_label": market.get("label"),
+        "market_severity": market.get("severity"),
+        "market_message": market.get("message"),
         "next_price": next_price,
         "average_price": average,
         "lowest_price": lowest,

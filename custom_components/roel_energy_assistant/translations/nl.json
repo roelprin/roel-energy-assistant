@@ -10,5 +10,20 @@
     "abort": {
       "already_configured": "Roel Energy Assistant is al geconfigureerd."
     }
+  },
+  "entity": {
+    "sensor": {
+      "market_status": {
+        "name": "Marktstatus"
+      }
+    },
+    "binary_sensor": {
+      "negative_market_price": {
+        "name": "Negatieve beursprijs"
+      },
+      "negative_total_price": {
+        "name": "Negatieve totaalprijs"
+      }
+    }
   }
 }
