@@ -189,6 +189,57 @@ class ReaSolarAdvisorSensor(RoelAssistantBaseSensor):
         return {"feed_in_power": data.get("feed_in_power"), "grid_import_power": data.get("grid_import_power"), "loss_per_hour": data.get("loss_per_hour"), "market_status": data.get("market_status"), "advice": data.get("advice")}
 
 
+
+
+class ReaSolarSurplusSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("available_solar_surplus")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "grid_status": data.get("grid_status"),
+            "feed_in_power": data.get("feed_in_power"),
+            "self_consumption_advice": data.get("self_consumption_advice"),
+            "suggested_loads": data.get("suggested_loads"),
+        }
+
+
+class ReaVirtualBatterySensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("virtual_battery_score")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "status": data.get("virtual_battery_status"),
+            "available_solar_surplus": data.get("available_solar_surplus"),
+            "suggested_loads": data.get("suggested_loads"),
+            "self_consumption_advice": data.get("self_consumption_advice"),
+        }
+
+
+class ReaSelfConsumptionAdviceSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("self_consumption_advice")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "available_solar_surplus": data.get("available_solar_surplus"),
+            "virtual_battery_status": data.get("virtual_battery_status"),
+            "virtual_battery_score": data.get("virtual_battery_score"),
+            "suggested_loads": data.get("suggested_loads"),
+            "solar_advice": data.get("solar_advice"),
+        }
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         ReaAdvisorSensor(hass, "advisor", "Advisor", "mdi:brain"),
@@ -201,4 +252,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaGridStatusSensor(hass, "grid_status", "Netstatus", "mdi:transmission-tower"),
         ReaLossPerHourSensor(hass, "loss_per_hour", "Verlies per uur", "mdi:cash-minus", "€/u"),
         ReaSolarAdvisorSensor(hass, "solar_advisor", "Solar advisor", "mdi:solar-power-variant"),
+        ReaSolarSurplusSensor(hass, "solar_surplus", "Zonnestroom overschot", "mdi:solar-power", "W"),
+        ReaVirtualBatterySensor(hass, "virtual_battery", "Virtuele batterij", "mdi:battery-charging-high", "%"),
+        ReaSelfConsumptionAdviceSensor(hass, "self_consumption_advice", "Eigen verbruik advies", "mdi:home-lightning-bolt"),
     ])

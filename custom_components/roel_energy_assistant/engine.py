@@ -334,6 +334,41 @@ def analyze(hass: HomeAssistant) -> dict:
     elif grid_import_power > 500 and average is not None and current < average:
         solar_advice = "Je neemt stroom af, maar de prijs is gunstig"
 
+    # Solar Utilization Engine v0.3.2
+    available_solar_surplus = feed_in_power if feed_in_power > 50 else 0
+
+    if available_solar_surplus >= 3500:
+        virtual_battery_status = "Veel overschot"
+        virtual_battery_score = 100
+    elif available_solar_surplus >= 2500:
+        virtual_battery_status = "Ruim overschot"
+        virtual_battery_score = 80
+    elif available_solar_surplus >= 1000:
+        virtual_battery_status = "Overschot"
+        virtual_battery_score = 60
+    elif available_solar_surplus >= 250:
+        virtual_battery_status = "Klein overschot"
+        virtual_battery_score = 35
+    else:
+        virtual_battery_status = "Geen overschot"
+        virtual_battery_score = 0
+
+    self_consumption_advice = "Geen extra eigen zonnestroom beschikbaar"
+    suggested_loads = []
+
+    if available_solar_surplus >= 3500:
+        self_consumption_advice = "Veel zonnestroom over: droger, wasmachine of airco zijn nu logisch"
+        suggested_loads = ["droger", "wasmachine", "vaatwasser", "airco"]
+    elif available_solar_surplus >= 2500:
+        self_consumption_advice = "Ruim zonnestroom over: wasmachine of airco zijn nu logisch"
+        suggested_loads = ["wasmachine", "vaatwasser", "airco"]
+    elif available_solar_surplus >= 1000:
+        self_consumption_advice = "Zonnestroom over: kleine tot middelgrote verbruikers kunnen nu"
+        suggested_loads = ["vaatwasser", "airco"]
+    elif available_solar_surplus >= 250:
+        self_consumption_advice = "Klein overschot: lichte verbruikers of airco laag vermogen"
+        suggested_loads = ["airco laag vermogen"]
+
     recommended = []
     avoid = []
 
@@ -394,6 +429,7 @@ def analyze(hass: HomeAssistant) -> dict:
 
     if feed_in_power > 50:
         briefing += f"Je levert momenteel {int(feed_in_power)} W terug. "
+        briefing += f"{self_consumption_advice}. "
     elif grid_import_power > 50:
         briefing += f"Je neemt momenteel {int(grid_import_power)} W af van het net. "
 
@@ -427,6 +463,11 @@ def analyze(hass: HomeAssistant) -> dict:
         "grid_status": grid_status,
         "loss_per_hour": loss_per_hour,
         "solar_advice": solar_advice,
+        "available_solar_surplus": available_solar_surplus,
+        "virtual_battery_status": virtual_battery_status,
+        "virtual_battery_score": virtual_battery_score,
+        "self_consumption_advice": self_consumption_advice,
+        "suggested_loads": suggested_loads,
         "average_price": average,
         "lowest_price": lowest,
         "highest_price": highest,

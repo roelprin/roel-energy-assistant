@@ -27,6 +27,15 @@
       },
       "solar_advisor": {
         "name": "Solar advisor"
+      },
+      "solar_surplus": {
+        "name": "Zonnestroom overschot"
+      },
+      "virtual_battery": {
+        "name": "Virtuele batterij"
+      },
+      "self_consumption_advice": {
+        "name": "Eigen verbruik advies"
       }
     },
     "binary_sensor": {
@@ -38,6 +47,9 @@
       },
       "feed_in_active": {
         "name": "Teruglevering actief"
+      },
+      "large_solar_surplus": {
+        "name": "Veel zonnestroom over"
       }
     }
   }

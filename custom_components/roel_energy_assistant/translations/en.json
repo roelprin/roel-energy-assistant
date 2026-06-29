@@ -27,6 +27,15 @@
       },
       "solar_advisor": {
         "name": "Solar advisor"
+      },
+      "solar_surplus": {
+        "name": "Solar surplus"
+      },
+      "virtual_battery": {
+        "name": "Virtual battery"
+      },
+      "self_consumption_advice": {
+        "name": "Self-consumption advice"
       }
     },
     "binary_sensor": {
@@ -38,6 +47,9 @@
       },
       "feed_in_active": {
         "name": "Feed-in active"
+      },
+      "large_solar_surplus": {
+        "name": "Large solar surplus"
       }
     }
   }

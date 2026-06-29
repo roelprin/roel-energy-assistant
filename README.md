@@ -86,3 +86,17 @@ New entities:
 - Verlies per uur
 - Solar advisor
 - Teruglevering actief
+
+
+## v0.3.2 - Solar Utilization Engine
+
+REA now estimates available solar surplus from the P1 net power sensor.
+
+New entities:
+
+- Zonnestroom overschot
+- Virtuele batterij
+- Eigen verbruik advies
+- Veel zonnestroom over
+
+The virtual battery score is based on the amount of power currently being fed back to the grid.
