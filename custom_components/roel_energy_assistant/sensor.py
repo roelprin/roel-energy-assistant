@@ -240,6 +240,25 @@ class ReaSelfConsumptionAdviceSensor(RoelAssistantBaseSensor):
         }
 
 
+
+
+class ReaDataQualitySensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("data_quality")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {
+            "p1_entity": data.get("p1_entity"),
+            "p1_power": data.get("p1_power"),
+            "current_price": data.get("current_price"),
+            "market_price": data.get("market_price"),
+            "grid_status": data.get("grid_status"),
+        }
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         ReaAdvisorSensor(hass, "advisor", "Advisor", "mdi:brain"),
@@ -255,4 +274,5 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaSolarSurplusSensor(hass, "solar_surplus", "Zonnestroom overschot", "mdi:solar-power", "W"),
         ReaVirtualBatterySensor(hass, "virtual_battery", "Virtuele batterij", "mdi:battery-charging-high", "%"),
         ReaSelfConsumptionAdviceSensor(hass, "self_consumption_advice", "Eigen verbruik advies", "mdi:home-lightning-bolt"),
+        ReaDataQualitySensor(hass, "data_quality", "Datakwaliteit", "mdi:database-check"),
     ])

@@ -36,6 +36,9 @@
       },
       "self_consumption_advice": {
         "name": "Eigen verbruik advies"
+      },
+      "data_quality": {
+        "name": "Datakwaliteit"
       }
     },
     "binary_sensor": {
@@ -50,6 +53,9 @@
       },
       "large_solar_surplus": {
         "name": "Veel zonnestroom over"
+      },
+      "data_ok": {
+        "name": "Data OK"
       }
     }
   }

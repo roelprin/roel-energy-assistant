@@ -23,6 +23,15 @@ from .const import (
 TZ = ZoneInfo("Europe/Amsterdam")
 
 
+def _safe_float(value):
+    try:
+        if value is None:
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _float_state(hass: HomeAssistant, entity_id: str):
     value = hass.states.get(entity_id)
     if value is None:
@@ -215,7 +224,7 @@ def _build_daily_plan(
 
 def analyze(hass: HomeAssistant) -> dict:
     current = _float_state(hass, ESSENT_CURRENT_PRICE)
-    market_price = _attr(hass, ESSENT_CURRENT_PRICE, "market_price")
+    market_price = _safe_float(_attr(hass, ESSENT_CURRENT_PRICE, "market_price"))
     p1_power = _float_state(hass, P1_POWER)
     feed_in_power = abs(p1_power) if p1_power is not None and p1_power < 0 else 0
     grid_import_power = p1_power if p1_power is not None and p1_power > 0 else 0
@@ -333,8 +342,12 @@ def analyze(hass: HomeAssistant) -> dict:
         solar_advice = "Je levert terug; goed moment om eigen zonnestroom te gebruiken"
     elif grid_import_power > 500 and average is not None and current < average:
         solar_advice = "Je neemt stroom af, maar de prijs is gunstig"
+    elif grid_import_power > 500:
+        solar_advice = "Je neemt stroom af van het net"
+    else:
+        solar_advice = "Geen duidelijke netafname of teruglevering"
 
-    # Solar Utilization Engine v0.3.2
+    # Solar Utilization Engine
     available_solar_surplus = feed_in_power if feed_in_power > 50 else 0
 
     if available_solar_surplus >= 3500:
@@ -463,6 +476,8 @@ def analyze(hass: HomeAssistant) -> dict:
         "grid_status": grid_status,
         "loss_per_hour": loss_per_hour,
         "solar_advice": solar_advice,
+        "data_quality": "ok" if p1_power is not None else "missing_p1_power",
+        "p1_entity": P1_POWER,
         "available_solar_surplus": available_solar_surplus,
         "virtual_battery_status": virtual_battery_status,
         "virtual_battery_score": virtual_battery_score,

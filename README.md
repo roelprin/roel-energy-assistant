@@ -100,3 +100,15 @@ New entities:
 - Veel zonnestroom over
 
 The virtual battery score is based on the amount of power currently being fed back to the grid.
+
+
+## v0.3.3 - Stabilization
+
+This release focuses on stability and diagnostics.
+
+New entities:
+
+- Datakwaliteit
+- Data OK
+
+REA now reports whether its required P1 data is available and includes more diagnostic attributes.

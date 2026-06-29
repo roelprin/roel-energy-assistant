@@ -67,6 +67,9 @@ class ReaBinarySensor(RoelEnergyAssistantEntity, BinarySensorEntity):
         if self._key == "large_solar_surplus":
             return (data.get("available_solar_surplus") or 0) >= 2500
 
+        if self._key == "data_ok":
+            return data.get("data_quality") == "ok"
+
         return False
 
 
@@ -79,4 +82,5 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaBinarySensor(hass, "negative_total_price", "Negatieve totaalprijs", "mdi:cash-minus"),
         ReaBinarySensor(hass, "feed_in_active", "Teruglevering actief", "mdi:transmission-tower-export"),
         ReaBinarySensor(hass, "large_solar_surplus", "Veel zonnestroom over", "mdi:solar-power-variant"),
+        ReaBinarySensor(hass, "data_ok", "Data OK", "mdi:database-check"),
     ])

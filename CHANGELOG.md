@@ -1,21 +1,30 @@
 # Changelog
 
-## v0.3.2
+## v0.3.3
 
-Solar Utilization Engine.
+Stabilization release.
 
 ### Added
 
-- Zonnestroom overschot sensor.
-- Virtuele batterij sensor.
-- Eigen verbruik advies sensor.
-- Veel zonnestroom over binary sensor.
-- Suggested loads based on live feed-in power.
-- Briefing now mentions self-consumption advice.
+- Datakwaliteit sensor.
+- Data OK binary sensor.
+- Extra diagnostic attributes:
+  - p1 entity
+  - p1 power
+  - current price
+  - market price
+  - grid status
 
-### Notes
+### Improved
 
-This version uses only the P1 net power sensor. It does not yet read direct GoodWe PV production. Therefore "virtual battery" means available feed-in power that could be used by controllable loads.
+- Safer numeric handling for market price attributes.
+- Better behavior when P1 power is missing.
+- Better wording for net import, feed-in and neutral grid states.
+- Python files compile-checked before release.
+
+## v0.3.2
+
+Solar Utilization Engine.
 
 ## v0.3.1
 

@@ -36,6 +36,9 @@
       },
       "self_consumption_advice": {
         "name": "Self-consumption advice"
+      },
+      "data_quality": {
+        "name": "Data quality"
       }
     },
     "binary_sensor": {
@@ -50,6 +53,9 @@
       },
       "large_solar_surplus": {
         "name": "Large solar surplus"
+      },
+      "data_ok": {
+        "name": "Data OK"
       }
     }
   }
