@@ -1,0 +1,12 @@
+{
+  "domain": "roel_energy_assistant",
+  "name": "Roel Energy Assistant",
+  "version": "0.3.0",
+  "codeowners": [
+    "@roelprin"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/roelprin/roel-energy-assistant",
+  "iot_class": "local_polling",
+  "requirements": []
+}

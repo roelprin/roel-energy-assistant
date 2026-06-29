@@ -51,3 +51,16 @@ The `Briefing` sensor now has a full text state and exposes:
 - avoid actions
 - daily plan
 - reasons
+
+
+## v0.3.0 - Negative prices step 1
+
+REA now detects negative market prices and negative total prices.
+
+New entities:
+
+- `Marktstatus`
+- `Negatieve beursprijs`
+- `Negatieve totaalprijs`
+
+This is the preparation for the next step: calculating feed-in power and loss per hour using the HomeWizard P1 meter.
