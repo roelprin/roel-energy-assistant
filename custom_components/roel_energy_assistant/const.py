@@ -15,3 +15,5 @@ ESSENT_HOURLY_PRICES = "sensor.essent_dynamic_prices_uurprijzen_2"
 ESSENT_NEGATIVE_PRICE = "binary_sensor.essent_dynamic_prices_negatieve_stroomprijs"
 ESSENT_CHEAP_HOUR = "binary_sensor.essent_dynamic_prices_goedkoop_stroomuur"
 ESSENT_EXPENSIVE_HOUR = "binary_sensor.essent_dynamic_prices_duur_stroomuur"
+
+P1_POWER = "sensor.p1_meter_vermogen"

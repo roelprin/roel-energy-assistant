@@ -17,6 +17,7 @@ from .const import (
     ESSENT_MOST_EXPENSIVE_HOUR,
     ESSENT_NEGATIVE_PRICE,
     ESSENT_NEXT_PRICE,
+    P1_POWER,
 )
 
 TZ = ZoneInfo("Europe/Amsterdam")
@@ -215,6 +216,9 @@ def _build_daily_plan(
 def analyze(hass: HomeAssistant) -> dict:
     current = _float_state(hass, ESSENT_CURRENT_PRICE)
     market_price = _attr(hass, ESSENT_CURRENT_PRICE, "market_price")
+    p1_power = _float_state(hass, P1_POWER)
+    feed_in_power = abs(p1_power) if p1_power is not None and p1_power < 0 else 0
+    grid_import_power = p1_power if p1_power is not None and p1_power > 0 else 0
     next_price = _float_state(hass, ESSENT_NEXT_PRICE)
     average = _float_state(hass, ESSENT_AVERAGE_TODAY)
     lowest = _float_state(hass, ESSENT_LOWEST_TODAY)
@@ -308,6 +312,28 @@ def analyze(hass: HomeAssistant) -> dict:
     wait_minutes = _minutes_until(cheapest_hour)
     potential_saving = round(max(0, current - lowest), 5) if lowest is not None else None
 
+    feed_in_kw = round(feed_in_power / 1000, 3) if feed_in_power is not None else 0
+    loss_per_hour = 0
+    if current is not None and current < 0 and feed_in_kw:
+        loss_per_hour = round(abs(current) * feed_in_kw, 4)
+
+    if feed_in_power > 50:
+        grid_status = "Teruglevering"
+    elif grid_import_power > 50:
+        grid_status = "Netafname"
+    else:
+        grid_status = "Eigen verbruik"
+
+    solar_advice = "Geen bijzonder zonne-advies"
+    if feed_in_power > 500 and current < 0:
+        solar_advice = "Voorkom teruglevering: de totale stroomprijs is negatief"
+    elif feed_in_power > 500 and market_price is not None and market_price < 0:
+        solar_advice = "Gebruik nu eigen zonnestroom: de kale beursprijs is negatief"
+    elif feed_in_power > 500:
+        solar_advice = "Je levert terug; goed moment om eigen zonnestroom te gebruiken"
+    elif grid_import_power > 500 and average is not None and current < average:
+        solar_advice = "Je neemt stroom af, maar de prijs is gunstig"
+
     recommended = []
     avoid = []
 
@@ -324,8 +350,12 @@ def analyze(hass: HomeAssistant) -> dict:
     else:
         avoid = ["droger", "boiler", "airco extra koelen", "groot verbruik"]
 
-    if current < 0:
+    if feed_in_power > 500 and current < 0:
+        advice = f"Je levert {int(feed_in_power)} W terug terwijl de totaalprijs negatief is. Gebruik nu zoveel mogelijk eigen stroom."
+    elif current < 0:
         advice = "Gebruik nu veel stroom: de totale stroomprijs is negatief."
+    elif feed_in_power > 500 and market_price is not None and market_price < 0:
+        advice = f"Je levert {int(feed_in_power)} W terug en de kale beursprijs is negatief. Gebruik bij voorkeur nu eigen stroom."
     elif market_price is not None and market_price < 0:
         advice = "De kale beursprijs is negatief. Gebruik bij voorkeur nu eigen stroom en voorkom onnodige teruglevering."
     elif score >= 85:
@@ -362,6 +392,11 @@ def analyze(hass: HomeAssistant) -> dict:
     if market_price is not None:
         briefing += f"Kale beursprijs: €{market_price:.3f}/kWh. "
 
+    if feed_in_power > 50:
+        briefing += f"Je levert momenteel {int(feed_in_power)} W terug. "
+    elif grid_import_power > 50:
+        briefing += f"Je neemt momenteel {int(grid_import_power)} W af van het net. "
+
     if cheapest_hour and lowest is not None:
         briefing += f"Goedkoopste uur: {cheapest_hour} (€{lowest:.3f}/kWh). "
 
@@ -385,6 +420,13 @@ def analyze(hass: HomeAssistant) -> dict:
         "market_severity": market.get("severity"),
         "market_message": market.get("message"),
         "next_price": next_price,
+        "p1_power": p1_power,
+        "feed_in_power": feed_in_power,
+        "feed_in_kw": feed_in_kw,
+        "grid_import_power": grid_import_power,
+        "grid_status": grid_status,
+        "loss_per_hour": loss_per_hour,
+        "solar_advice": solar_advice,
         "average_price": average,
         "lowest_price": lowest,
         "highest_price": highest,

@@ -15,6 +15,18 @@
     "sensor": {
       "market_status": {
         "name": "Marktstatus"
+      },
+      "feed_in_power": {
+        "name": "Teruglevering"
+      },
+      "grid_status": {
+        "name": "Netstatus"
+      },
+      "loss_per_hour": {
+        "name": "Verlies per uur"
+      },
+      "solar_advisor": {
+        "name": "Solar advisor"
       }
     },
     "binary_sensor": {
@@ -23,6 +35,9 @@
       },
       "negative_total_price": {
         "name": "Negatieve totaalprijs"
+      },
+      "feed_in_active": {
+        "name": "Teruglevering actief"
       }
     }
   }

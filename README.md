@@ -64,3 +64,25 @@ New entities:
 - `Negatieve totaalprijs`
 
 This is the preparation for the next step: calculating feed-in power and loss per hour using the HomeWizard P1 meter.
+
+
+## v0.3.1 - PV Analyzer
+
+REA now reads the HomeWizard P1 net power sensor:
+
+```yaml
+sensor.p1_meter_vermogen
+```
+
+Assumption:
+
+- Negative value = feed-in / teruglevering
+- Positive value = grid import / netafname
+
+New entities:
+
+- Teruglevering
+- Netstatus
+- Verlies per uur
+- Solar advisor
+- Teruglevering actief

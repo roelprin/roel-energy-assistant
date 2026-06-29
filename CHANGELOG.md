@@ -1,27 +1,20 @@
 # Changelog
 
-## v0.3.0
+## v0.3.1
 
-Negative prices - step 1.
+PV Analyzer.
 
 ### Added
 
-- Market status sensor.
-- Negative market price binary sensor.
-- Negative total price binary sensor.
-- Market status attributes:
-  - status
-  - severity
-  - message
-  - current price
-  - market price
-  - average price
-- Advisor now detects negative market prices and gives a matching warning.
+- Teruglevering sensor.
+- Netstatus sensor.
+- Verlies per uur sensor.
+- Solar advisor sensor.
+- Teruglevering actief binary sensor.
+- HomeWizard P1 net power integration using `sensor.p1_meter_vermogen`.
 
-## v0.2.0
+### Improved
 
-Planner and briefing release.
-
-## v0.1.0
-
-Initial release.
+- Advisor now considers live feed-in power.
+- Briefing now includes current feed-in or grid import power.
+- Negative price advice now mentions feed-in power.

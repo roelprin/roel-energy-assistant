@@ -15,6 +15,18 @@
     "sensor": {
       "market_status": {
         "name": "Market status"
+      },
+      "feed_in_power": {
+        "name": "Feed-in power"
+      },
+      "grid_status": {
+        "name": "Grid status"
+      },
+      "loss_per_hour": {
+        "name": "Loss per hour"
+      },
+      "solar_advisor": {
+        "name": "Solar advisor"
       }
     },
     "binary_sensor": {
@@ -23,6 +35,9 @@
       },
       "negative_total_price": {
         "name": "Negative total price"
+      },
+      "feed_in_active": {
+        "name": "Feed-in active"
       }
     }
   }

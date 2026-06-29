@@ -20,6 +20,7 @@ TRACKED_ENTITIES = [
     "binary_sensor.essent_dynamic_prices_negatieve_stroomprijs",
     "binary_sensor.essent_dynamic_prices_goedkoop_stroomuur",
     "binary_sensor.essent_dynamic_prices_duur_stroomuur",
+    "sensor.p1_meter_vermogen",
 ]
 
 
@@ -143,6 +144,51 @@ class ReaMarketStatusSensor(RoelAssistantBaseSensor):
         }
 
 
+
+class ReaFeedInPowerSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("feed_in_power")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {"p1_power": data.get("p1_power"), "grid_status": data.get("grid_status"), "solar_advice": data.get("solar_advice")}
+
+
+class ReaGridStatusSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("grid_status")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {"p1_power": data.get("p1_power"), "feed_in_power": data.get("feed_in_power"), "grid_import_power": data.get("grid_import_power"), "solar_advice": data.get("solar_advice")}
+
+
+class ReaLossPerHourSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("loss_per_hour")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {"feed_in_power": data.get("feed_in_power"), "feed_in_kw": data.get("feed_in_kw"), "current_price": data.get("current_price"), "market_price": data.get("market_price"), "grid_status": data.get("grid_status")}
+
+
+class ReaSolarAdvisorSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return analyze(self.hass).get("solar_advice")
+
+    @property
+    def extra_state_attributes(self):
+        data = analyze(self.hass)
+        return {"feed_in_power": data.get("feed_in_power"), "grid_import_power": data.get("grid_import_power"), "loss_per_hour": data.get("loss_per_hour"), "market_status": data.get("market_status"), "advice": data.get("advice")}
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         ReaAdvisorSensor(hass, "advisor", "Advisor", "mdi:brain"),
@@ -151,4 +197,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaDailyPlanSensor(hass, "daily_plan", "Dagplanning", "mdi:calendar-clock"),
         ReaBriefingSensor(hass, "briefing", "Briefing", "mdi:message-text-clock"),
         ReaMarketStatusSensor(hass, "market_status", "Marktstatus", "mdi:chart-bell-curve"),
+        ReaFeedInPowerSensor(hass, "feed_in_power", "Teruglevering", "mdi:transmission-tower-export", "W"),
+        ReaGridStatusSensor(hass, "grid_status", "Netstatus", "mdi:transmission-tower"),
+        ReaLossPerHourSensor(hass, "loss_per_hour", "Verlies per uur", "mdi:cash-minus", "€/u"),
+        ReaSolarAdvisorSensor(hass, "solar_advisor", "Solar advisor", "mdi:solar-power-variant"),
     ])

@@ -13,6 +13,7 @@ TRACKED_ENTITIES = [
     "binary_sensor.essent_dynamic_prices_negatieve_stroomprijs",
     "binary_sensor.essent_dynamic_prices_goedkoop_stroomuur",
     "binary_sensor.essent_dynamic_prices_duur_stroomuur",
+    "sensor.p1_meter_vermogen",
 ]
 
 
@@ -60,6 +61,9 @@ class ReaBinarySensor(RoelEnergyAssistantEntity, BinarySensorEntity):
         if self._key == "negative_total_price":
             return data.get("market_status") == "negative_total_price"
 
+        if self._key == "feed_in_active":
+            return (data.get("feed_in_power") or 0) > 50
+
         return False
 
 
@@ -70,4 +74,5 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaBinarySensor(hass, "cheap_block_active", "Goedkoop blok actief", "mdi:clock-check"),
         ReaBinarySensor(hass, "negative_market_price", "Negatieve beursprijs", "mdi:chart-line-variant"),
         ReaBinarySensor(hass, "negative_total_price", "Negatieve totaalprijs", "mdi:cash-minus"),
+        ReaBinarySensor(hass, "feed_in_active", "Teruglevering actief", "mdi:transmission-tower-export"),
     ])
