@@ -109,7 +109,7 @@ class ReaDailyPlanSensor(RoelAssistantBaseSensor):
 class ReaBriefingSensor(RoelAssistantBaseSensor):
     @property
     def native_value(self):
-        return analyze(self.hass).get("briefing")
+        return analyze(self.hass).get("briefing", "Geen briefing beschikbaar")
 
     @property
     def extra_state_attributes(self):
@@ -292,7 +292,7 @@ class ReaDecisionEngineSensor(RoelAssistantBaseSensor):
 class ReaGoodweAdviceSensor(RoelAssistantBaseSensor):
     @property
     def native_value(self):
-        return analyze(self.hass).get("goodwe_advice")
+        return analyze(self.hass).get("goodwe_advice", "Geen GoodWe-begrenzing nodig")
 
     @property
     def extra_state_attributes(self):
@@ -311,7 +311,7 @@ class ReaGoodweAdviceSensor(RoelAssistantBaseSensor):
 class ReaRecommendedExportLimitSensor(RoelAssistantBaseSensor):
     @property
     def native_value(self):
-        return analyze(self.hass).get("recommended_export_limit")
+        return analyze(self.hass).get("recommended_export_limit", 10000)
 
     @property
     def extra_state_attributes(self):

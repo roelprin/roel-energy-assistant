@@ -152,3 +152,14 @@ New entities:
 - Anti Feed-In actief
 
 This version is advice-only. It does not automatically change the GoodWe export limit yet.
+
+
+## v0.4.2 - Bugfix / Cleanup & Stability
+
+This release fixes `Unknown` values for:
+
+- Briefing
+- GoodWe advies
+- Aanbevolen exportlimiet
+
+It also makes `decision_engine.py` the single source of truth for all REA decisions.
