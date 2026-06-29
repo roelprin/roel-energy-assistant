@@ -112,3 +112,20 @@ New entities:
 - Data OK
 
 REA now reports whether its required P1 data is available and includes more diagnostic attributes.
+
+
+## v0.4.0 - Decision Engine foundation
+
+REA now exposes one central Decision Engine entity.
+
+New file:
+
+```text
+custom_components/roel_energy_assistant/decision_engine.py
+```
+
+New entity:
+
+- Decision Engine
+
+This is the new central place for status, advice, score, reasons, daily plan, market status, grid status and feed-in information.

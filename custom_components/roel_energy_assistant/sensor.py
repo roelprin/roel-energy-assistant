@@ -6,6 +6,7 @@ from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import DOMAIN
 from .engine import analyze
+from .decision_engine import make_decision
 from .entity import RoelEnergyAssistantEntity
 
 TRACKED_ENTITIES = [
@@ -259,6 +260,33 @@ class ReaDataQualitySensor(RoelAssistantBaseSensor):
         }
 
 
+class ReaDecisionEngineSensor(RoelAssistantBaseSensor):
+    @property
+    def native_value(self):
+        return make_decision(self.hass).get("primary_status")
+
+    @property
+    def extra_state_attributes(self):
+        data = make_decision(self.hass)
+        return {
+            "version": data.get("decision_engine_version"),
+            "mode": data.get("decision_engine_mode"),
+            "advice": data.get("primary_advice"),
+            "score": data.get("primary_score"),
+            "rating": data.get("rating"),
+            "stars": data.get("stars"),
+            "reasons": data.get("reasons"),
+            "recommended_actions": data.get("recommended_actions"),
+            "avoid_actions": data.get("avoid_actions"),
+            "daily_plan": data.get("daily_plan"),
+            "market_status": data.get("market_status"),
+            "grid_status": data.get("grid_status"),
+            "feed_in_power": data.get("feed_in_power"),
+            "virtual_battery_score": data.get("virtual_battery_score"),
+            "data_quality": data.get("data_quality"),
+        }
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         ReaAdvisorSensor(hass, "advisor", "Advisor", "mdi:brain"),
@@ -275,4 +303,5 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ReaVirtualBatterySensor(hass, "virtual_battery", "Virtuele batterij", "mdi:battery-charging-high", "%"),
         ReaSelfConsumptionAdviceSensor(hass, "self_consumption_advice", "Eigen verbruik advies", "mdi:home-lightning-bolt"),
         ReaDataQualitySensor(hass, "data_quality", "Datakwaliteit", "mdi:database-check"),
+        ReaDecisionEngineSensor(hass, "decision_engine", "Decision Engine", "mdi:brain"),
     ])

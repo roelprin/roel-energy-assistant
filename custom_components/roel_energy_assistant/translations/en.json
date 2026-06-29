@@ -39,6 +39,9 @@
       },
       "data_quality": {
         "name": "Data quality"
+      },
+      "decision_engine": {
+        "name": "Decision Engine"
       }
     },
     "binary_sensor": {

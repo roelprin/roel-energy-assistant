@@ -1,35 +1,19 @@
 # Changelog
 
-## v0.3.3
+## v0.4.0
 
-Stabilization release.
+Decision Engine foundation.
 
 ### Added
 
-- Datakwaliteit sensor.
-- Data OK binary sensor.
-- Extra diagnostic attributes:
-  - p1 entity
-  - p1 power
-  - current price
-  - market price
-  - grid status
+- New `decision_engine.py` module.
+- New `Decision Engine` sensor.
+- One central decision object with status, advice, score, reasons, daily plan, market status and grid status.
 
-### Improved
+### Notes
 
-- Safer numeric handling for market price attributes.
-- Better behavior when P1 power is missing.
-- Better wording for net import, feed-in and neutral grid states.
-- Python files compile-checked before release.
+This is a safe foundation release. The current stable analyzer remains active and the Decision Engine wraps it. Future versions can move more logic into the Decision Engine without changing dashboards or automations.
 
-## v0.3.2
+## v0.3.3
 
-Solar Utilization Engine.
-
-## v0.3.1
-
-PV Analyzer.
-
-## v0.3.0
-
-Negative prices - step 1.
+Stabilization release.
